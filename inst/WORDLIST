@@ -31,6 +31,7 @@ devtools
 dropdown
 env
 EOF
+featkit
 github
 gitkeep
 globals
@@ -38,6 +39,7 @@ gmail
 http
 httr
 httr2
+installable
 Integrations
 IPC
 JSON
@@ -58,6 +60,7 @@ pkgdown
 PNG
 pre
 PRs
+PyPI
 RAiddin
 rcmdcheck
 README
