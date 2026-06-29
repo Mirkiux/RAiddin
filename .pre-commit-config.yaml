@@ -59,7 +59,6 @@ repos:
     -   id: no-print-statement
     -   id: no-debug-statement
     -   id: deps-in-desc
-    -   id: pkgdown
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -91,4 +90,3 @@ repos:
 
 ci:
     autoupdate_schedule: monthly
-    skip: [pkgdown]
