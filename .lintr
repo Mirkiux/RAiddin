@@ -3,6 +3,3 @@ linters: linters_with_defaults(
     object_name_linter("snake_case"),
     commented_code_linter = NULL
   )
-exclusions: list(
-    "tests"
-  )
