@@ -1,0 +1,30 @@
+Package: RAiddin
+Title: Agentic Claude Chat Panel for RStudio
+Version: 0.0.0.9000
+Authors@R:
+    person("Mirko", "Daga", email = "mirko.daga.21@gmail.com", role = c("aut", "cre"))
+Description: An RStudio addin that provides an agentic Claude AI chat panel
+    with code execution, output capture, and plot vision capabilities.
+    Supports a hybrid execution model using evaluate (main session) and
+    callr (isolated subprocess), with codetools-based dependency analysis
+    for selective environment replication.
+License: Apache License (>= 2)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3
+Imports:
+    httr2,
+    rstudioapi,
+    shiny,
+    miniUI,
+    jsonlite,
+    callr,
+    evaluate,
+    codetools,
+    base64enc,
+    lobstr
+Suggests:
+    testthat (>= 3.0.0),
+    covr,
+    pkgdown

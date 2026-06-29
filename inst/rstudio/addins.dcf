@@ -1,0 +1,14 @@
+Name: RAiddin Chat Panel
+Description: Open the agentic Claude chat panel
+Binding: launch_chat_panel
+Interactive: true
+
+Name: RAiddin Explain Selection
+Description: Explain the selected R code using Claude
+Binding: explain_selection
+Interactive: true
+
+Name: RAiddin Fix Selection
+Description: Ask Claude to fix or improve selected R code
+Binding: fix_selection
+Interactive: true
