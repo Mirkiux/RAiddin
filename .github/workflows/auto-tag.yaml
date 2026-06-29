@@ -1,0 +1,64 @@
+name: Auto-tag on version bump
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - DESCRIPTION
+
+jobs:
+  tag:
+    name: Create version tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ensure RELEASE_TOKEN is configured
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -z "$RELEASE_TOKEN" ]; then
+            echo "::error::RELEASE_TOKEN is not set. Add a PAT with contents:write so tag pushes trigger release.yaml."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # PAT required: GITHUB_TOKEN tag pushes do not trigger downstream workflows
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Read version from DESCRIPTION
+        id: version
+        run: |
+          VERSION=$(grep '^Version:' DESCRIPTION | awk '{print $2}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Skip development versions
+        id: dev_check
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          DOTS=$(echo "$VERSION" | tr -cd '.' | wc -c)
+          if [ "$DOTS" -ge 3 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Development version $VERSION — skipping tag."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check if tag already exists
+        id: tag_check
+        if: steps.dev_check.outputs.skip == 'false'
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create and push tag
+        if: steps.dev_check.outputs.skip == 'false' && steps.tag_check.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
