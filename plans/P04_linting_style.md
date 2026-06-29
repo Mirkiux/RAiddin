@@ -1,7 +1,7 @@
 ---
 plan: P04
 title: Code Style & Linting Configuration
-status: partially completed
+status: completed
 ---
 
 ## Objective
@@ -27,10 +27,10 @@ Configure lintr and styler for consistent code style across the package. Establi
 - `commented_code_linter` disabled
 
 ## Remaining tasks
-- [ ] Add `styler` and `lintr` to `Suggests` in DESCRIPTION (needed for roxygenize hook's additional_dependencies)
-- [ ] Add `WORDLIST` file for spell-check custom dictionary (project-specific terms: RAiddin, httr2, callr, rstudioapi, etc.)
-- [ ] Create `CONTRIBUTING.md` documenting style decisions and pre-commit setup instructions
-- [ ] Verify pre-commit hooks install and run cleanly: `pre-commit run --all-files`
+- [x] Add `styler` and `lintr` to `Suggests` in DESCRIPTION
+- [x] Add `WORDLIST` file for spell-check custom dictionary (auto-populated by hook, reviewed)
+- [x] Create `CONTRIBUTING.md` documenting style decisions and pre-commit setup instructions
+- [x] Verify pre-commit hooks install and run cleanly: all pass except `pkgdown` (expected until P16 — documented in CONTRIBUTING.md with `SKIP=pkgdown` workaround)
 
 ## Key decisions
 - Line length: 120 characters
