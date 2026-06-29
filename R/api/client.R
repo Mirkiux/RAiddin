@@ -5,8 +5,9 @@ claude_default_max_tokens <- 8192L
 
 #' Build an authenticated base httr2 request
 #'
-#' @return An `httr2_request` object pre-configured with auth headers and retry
-#'   logic for rate-limit (429) and overload (529) responses.
+#' @return An `httr2_request` object pre-configured with auth headers, retry
+#'   logic for rate-limit (429) and overload (529) responses, and error body
+#'   parsing.
 #' @noRd
 claude_base_request <- function() {
   httr2::request(claude_base_url) |>
@@ -18,7 +19,21 @@ claude_base_request <- function() {
     httr2::req_retry(
       max_tries = 3L,
       is_transient = function(resp) httr2::resp_status(resp) %in% c(429L, 529L)
+    ) |>
+    httr2::req_error(
+      is_error = function(resp) httr2::resp_status(resp) >= 400L,
+      body = claude_error_body
     )
+}
+
+#' Extract an error message from a failed Claude API response
+#'
+#' @param resp An `httr2_response` object.
+#' @return A single string describing the error.
+#' @noRd
+claude_error_body <- function(resp) {
+  parsed <- tryCatch(httr2::resp_body_json(resp), error = function(e) NULL)
+  parsed$error$message %||% "Unknown API error"
 }
 
 #' Send a messages request to the Claude API
@@ -53,13 +68,6 @@ chat_completion <- function(
   resp <- claude_base_request() |>
     httr2::req_url_path_append("messages") |>
     httr2::req_body_json(body) |>
-    httr2::req_error(
-      is_error = function(resp) httr2::resp_status(resp) >= 400L,
-      body = function(resp) {
-        parsed <- httr2::resp_body_json(resp)
-        parsed$error$message %||% "Unknown API error"
-      }
-    ) |>
     httr2::req_perform()
 
   httr2::resp_body_json(resp)
@@ -69,7 +77,10 @@ chat_completion <- function(
 #'
 #' Like [chat_completion()] but streams the response token by token, calling
 #' `on_text` incrementally. Returns the fully assembled response once complete.
-#' Requires httr2 >= 1.0.0.
+#' Only text content is streamed; if `tools` is supplied and the model
+#' responds with `tool_use`, call [chat_completion()] instead so tool_use
+#' blocks are preserved for [extract_tool_calls()] and
+#' [tool_result_message()].
 #'
 #' @param messages A list of message objects.
 #' @param on_text Optional callback `function(delta)` invoked with each text
