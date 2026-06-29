@@ -20,7 +20,7 @@ Prepare the package for CRAN submission following all CRAN policies and passing 
 ## Pre-submission checks
 - [ ] `devtools::check(remote = TRUE, manual = TRUE)` — 0 errors, 0 warnings, ≤1 note
 - [ ] `devtools::check_win_devel()` — win-builder devel
-- [ ] `devtools::check_win_release()` — win-builder release  
+- [ ] `devtools::check_win_release()` — win-builder release
 - [ ] `rhub::check_for_cran()` — R-hub multi-platform
 - [ ] `urlchecker::url_check()` — all URLs resolve
 - [ ] Spell check: `spelling::spell_check_package()`
