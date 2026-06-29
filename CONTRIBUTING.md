@@ -63,7 +63,7 @@ The `style-files` hook auto-formats your code on every commit. You will rarely n
 
 ## Linting
 
-`lintr` runs on every commit via the `lintr` pre-commit hook, using the rules in `.lintr`. Fix all lint errors before pushing — CI will also enforce this (see `.github/workflows/`).
+`lintr` runs on every commit via the `lintr` pre-commit hook, using the rules in `.lintr`. Fix all lint errors before pushing. CI enforcement will be added in P05.
 
 ## Documentation
 
@@ -79,7 +79,7 @@ Custom project terms are listed in `inst/WORDLIST`. If the spell-check hook flag
 
 - Tests live in `tests/testthat/`
 - Run locally with `devtools::test()`
-- Aim for ≥ 80% line coverage (enforced in CI via `covr`)
+- Aim for ≥ 80% line coverage (CI enforcement via `covr` will be added in P05)
 - Mock all external API calls — tests must pass offline
 
 ## Commit messages
