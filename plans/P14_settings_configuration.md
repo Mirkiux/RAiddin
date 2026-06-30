@@ -1,7 +1,7 @@
 ---
 plan: P14
 title: User Settings & Configuration
-status: not started
+status: completed
 ---
 
 ## Objective
@@ -32,8 +32,8 @@ Implement persistent user configuration for model selection, API key setup, appr
   - Tests connectivity
 
 ## Key files
-- `R/utils/config.R`
-- `R/utils/setup.R`
+- `R/utils_config.R`
+- `R/utils_setup.R`
 
 ## Dependencies
 P02
