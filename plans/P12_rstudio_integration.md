@@ -1,7 +1,7 @@
 ---
 plan: P12
 title: RStudio Editor Integrations
-status: not started
+status: completed
 ---
 
 ## Objective
@@ -19,10 +19,12 @@ Implement all rstudioapi interactions for reading from and writing to the RStudi
 | `insert_at_end()` | `insertText(location, text)` | Append to document end |
 | `get_active_file()` | `getSourceEditorContext()$path` | Return active file path |
 
+All functions implemented in [R/utils/editor.R](../R/utils/editor.R).
+
 ## Edge cases
-- No active editor: fail gracefully with informative message
-- No selection when selection is required: prompt user to select code first
-- Read-only documents: detect and warn before attempting write operations
+- [x] No active editor: fail gracefully with informative message
+- [x] No selection when selection is required: prompt user to select code first
+- [x] Read-only documents: detect and warn before attempting write operations
 
 ## Key files
 - `R/utils/editor.R`
