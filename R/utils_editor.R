@@ -64,7 +64,7 @@ get_document <- function() {
 get_cursor_position <- function() {
   ctx <- get_editor_context()
   start <- ctx$selection[[1]]$range$start
-  list(row = start[[1]], column = start[[2]])
+  list(row = start[["row"]], column = start[["column"]])
 }
 
 #' Insert text at the current cursor position
