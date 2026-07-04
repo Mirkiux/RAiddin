@@ -1,7 +1,7 @@
 ---
 plan: P11
 title: Approved Commands System
-status: not started
+status: in progress (core complete; Shiny modal deferred to P13)
 ---
 
 ## Objective
@@ -18,18 +18,17 @@ Implement a code execution approval flow similar to Claude Code's bash command a
 - For large objects: separate prompt listing object name + size, buttons: **Push**, **Skip**, **Always Push**
 
 ## Persistent approved patterns
-- Stored in user-level config file: `~/.raiddin/approved_patterns.yaml`
+- Stored in user-level config file: `~/.raiddin/approved_patterns.txt`
 - Patterns matched against code before showing prompt
-- Manageable via `raiddin_manage_approvals()` addin
+- Manageable via `raiddin_manage_approvals()` console-based manager (Shiny modal deferred to P13)
 
 ## Session-level "always allow"
 - Toggle in chat panel UI (see P13)
 - Resets on session restart
 
 ## Key files
-- `R/execution/approval.R`
-- `R/ui/approval_modal.R`
-- `R/utils/config.R`
+- `R/execution_approval.R` — [x] implemented (core logic)
+- `R/ui_approval_modal.R` — deferred to P13 (requires chat panel Shiny context)
 
 ## Dependencies
 P02, P13
