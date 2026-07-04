@@ -11,6 +11,6 @@ Invisibly \code{NULL}.
 }
 \description{
 Guides the user through first-time configuration: API key instructions,
-model selection, connectivity test, and config save. All output uses
+model selection, API key check, and config save. All output uses
 \code{\link[=message]{message()}} so it can be suppressed with \code{\link[=suppressMessages]{suppressMessages()}}.
 }

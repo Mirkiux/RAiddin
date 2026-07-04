@@ -36,7 +36,20 @@ raiddin_load_config <- function() {
   if (!file.exists(cfg_path)) {
     return(defaults)
   }
-  on_disk <- yaml::read_yaml(cfg_path)
+  on_disk <- tryCatch(
+    yaml::read_yaml(cfg_path),
+    error = function(e) {
+      warning(
+        "Could not read RAiddin config (", conditionMessage(e), "); using defaults.",
+        call. = FALSE
+      )
+      list()
+    }
+  )
+  if (!is.list(on_disk)) {
+    warning("RAiddin config is not a named list; using defaults.", call. = FALSE)
+    on_disk <- list()
+  }
   for (key in names(defaults)) {
     if (is.null(on_disk[[key]])) {
       on_disk[[key]] <- defaults[[key]]
@@ -120,9 +133,10 @@ raiddin_options <- function() {
 #' @keywords internal
 .onLoad <- function(libname, pkgname) { # nolint: object_name_linter.
   cfg <- raiddin_load_config()
-  opts <- stats::setNames(
-    cfg,
-    paste0("raiddin.", names(cfg))
-  )
-  options(opts)
+  for (key in names(cfg)) {
+    opt_name <- paste0("raiddin.", key)
+    if (is.null(getOption(opt_name))) {
+      options(stats::setNames(list(cfg[[key]]), opt_name))
+    }
+  }
 }

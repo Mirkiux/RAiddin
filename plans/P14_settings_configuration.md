@@ -9,7 +9,7 @@ Implement persistent user configuration for model selection, API key setup, appr
 
 ## Settings storage
 - Location: `~/.raiddin/config.yaml`
-- Written/read via `R/utils/config.R`
+- Written/read via `R/utils_config.R`
 - Never stored in the package directory or committed to git
 
 ## Configurable options
@@ -27,9 +27,9 @@ Implement persistent user configuration for model selection, API key setup, appr
 
 ## Setup flow
 - `raiddin_setup()`: interactive wizard for first-time configuration
-  - Prompts for API key (stored in env or system keyring via `keyring` package)
+  - Instructs user to set `ANTHROPIC_API_KEY` in `~/.Renviron` (env-based; keyring integration deferred)
   - Sets model preference
-  - Tests connectivity
+  - Checks that the API key environment variable is present (no network call made)
 
 ## Key files
 - `R/utils_config.R`

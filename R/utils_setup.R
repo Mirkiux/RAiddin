@@ -1,12 +1,15 @@
 #' Interactive RAiddin setup wizard
 #'
 #' Guides the user through first-time configuration: API key instructions,
-#' model selection, connectivity test, and config save. All output uses
+#' model selection, API key check, and config save. All output uses
 #' [message()] so it can be suppressed with [suppressMessages()].
 #'
 #' @return Invisibly `NULL`.
 #' @export
 raiddin_setup <- function() {
+  if (!interactive()) {
+    stop("`raiddin_setup()` must be called from an interactive R session.", call. = FALSE)
+  }
   message("=== RAiddin Setup Wizard ===\n")
 
   # Step 1: API key
@@ -54,8 +57,8 @@ raiddin_setup <- function() {
     }
   }
 
-  # Step 3: Test connectivity
-  message("\nStep 3: Testing API connectivity...")
+  # Step 3: Check API key
+  message("\nStep 3: Checking API key...")
   key_ok <- tryCatch(
     {
       get_api_key()
