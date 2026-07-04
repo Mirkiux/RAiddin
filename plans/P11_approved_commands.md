@@ -18,9 +18,9 @@ Implement a code execution approval flow similar to Claude Code's bash command a
 - For large objects: separate prompt listing object name + size, buttons: **Push**, **Skip**, **Always Push**
 
 ## Persistent approved patterns
-- Stored in user-level config file: `~/.raiddin/approved_patterns.yaml`
+- Stored in user-level config file: `~/.raiddin/approved_patterns.txt`
 - Patterns matched against code before showing prompt
-- Manageable via `raiddin_manage_approvals()` addin
+- Manageable via `raiddin_manage_approvals()` console-based manager (Shiny modal deferred to P13)
 
 ## Session-level "always allow"
 - Toggle in chat panel UI (see P13)

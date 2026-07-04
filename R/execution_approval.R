@@ -46,7 +46,8 @@ set_auto_approve <- function(value) {
 #' @return A `character` vector of approved pattern strings (may be length 0).
 #' @export
 get_approved_patterns <- function() {
-  session_pats <- .approval_state$session_patterns
+  session_pats <- trimws(.approval_state$session_patterns)
+  session_pats <- session_pats[nzchar(session_pats)]
   path <- .raiddin_patterns_path()
   persistent_pats <- tryCatch(
     {
@@ -70,8 +71,12 @@ get_approved_patterns <- function() {
 #' @return Invisibly `NULL`.
 #' @export
 add_approved_pattern <- function(pattern) {
-  if (!is.character(pattern) || length(pattern) != 1L || !nzchar(trimws(pattern))) {
+  if (!is.character(pattern) || length(pattern) != 1L) {
     stop("`pattern` must be a non-empty character(1).", call. = FALSE)
+  }
+  pattern <- trimws(pattern)
+  if (!nzchar(pattern) || grepl("[\r\n]", pattern)) {
+    stop("`pattern` must be a non-empty character(1) without newlines.", call. = FALSE)
   }
   existing <- get_approved_patterns()
   if (pattern %in% existing) {
@@ -99,6 +104,7 @@ remove_approved_pattern <- function(pattern) {
   if (!is.character(pattern) || length(pattern) != 1L) {
     stop("`pattern` must be a character(1).", call. = FALSE)
   }
+  pattern <- trimws(pattern)
   .approval_state$session_patterns <- setdiff(.approval_state$session_patterns, pattern)
   path <- .raiddin_patterns_path()
   if (file.exists(path)) {
@@ -186,6 +192,9 @@ reset_session_approvals <- function() {
 #' @return Invisibly `NULL`.
 #' @export
 raiddin_manage_approvals <- function() {
+  if (!interactive()) {
+    stop("`raiddin_manage_approvals()` must be called from an interactive R session.", call. = FALSE)
+  }
   patterns <- get_approved_patterns()
   if (length(patterns) == 0L) {
     message("No approved patterns are currently active.")
