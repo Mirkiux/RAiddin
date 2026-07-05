@@ -1,3 +1,12 @@
+# Package-level pusher with baseenv() closure — same rationale as .subprocess_runner.
+.push_runner <- local({
+  f <- function(objects) {
+    for (nm in names(objects)) assign(nm, objects[[nm]], envir = .GlobalEnv)
+  }
+  environment(f) <- baseenv()
+  f
+})
+
 #' @noRd
 classify_objects <- function(names, envir = .GlobalEnv, threshold_mb = 50) {
   if (length(names) == 0L) {
@@ -21,12 +30,7 @@ push_objects_to_session <- function(session, names, envir = .GlobalEnv) {
     lapply(names, function(nm) get(nm, envir = envir, inherits = FALSE)),
     names
   )
-  session$run(
-    function(objects) {
-      for (nm in names(objects)) assign(nm, objects[[nm]], envir = .GlobalEnv)
-    },
-    args = list(objects = objects)
-  )
+  session$run(.push_runner, args = list(objects = objects))
   invisible(NULL)
 }
 
@@ -34,7 +38,7 @@ push_objects_to_session <- function(session, names, envir = .GlobalEnv) {
 replicate_env <- function(session, code, envir = .GlobalEnv,
                           threshold_mb = 50, always_push = character(0)) {
   deps <- analyze_code_dependencies(code, envir)
-  forced <- intersect(always_push, ls(envir))
+  forced <- intersect(always_push, ls(envir, all.names = TRUE))
   needed <- union(deps, forced)
   classified <- classify_objects(needed, envir, threshold_mb)
   push_objects_to_session(session, classified$auto_push, envir)

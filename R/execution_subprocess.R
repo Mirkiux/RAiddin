@@ -109,6 +109,18 @@ reset_subprocess <- function() {
 execute_subprocess <- function(code, envir = .GlobalEnv,
                                threshold_mb = 50,
                                always_push = character(0)) {
+  if (!is.character(code) || length(code) != 1L) {
+    stop("`code` must be a character(1).", call. = FALSE)
+  }
+  if (!is.environment(envir)) {
+    stop("`envir` must be an environment.", call. = FALSE)
+  }
+  if (!is.numeric(threshold_mb) || length(threshold_mb) != 1L || threshold_mb <= 0) {
+    stop("`threshold_mb` must be a positive numeric(1).", call. = FALSE)
+  }
+  if (!is.character(always_push)) {
+    stop("`always_push` must be a character vector.", call. = FALSE)
+  }
   session <- .subprocess_state$session
   if (is.null(session) || !session$is_alive()) {
     session <- callr::r_session$new()
@@ -121,6 +133,7 @@ execute_subprocess <- function(code, envir = .GlobalEnv,
   raw <- tryCatch(
     session$run(.subprocess_runner, args = list(code = code, capture_plots = capture_plots)),
     error = function(e) {
+      tryCatch(session$close(), error = function(e2) NULL)
       .subprocess_state$session <- NULL
       list(
         stdout   = character(0),

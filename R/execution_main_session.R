@@ -11,6 +11,12 @@
 #'   `warnings`, and `messages`.
 #' @export
 execute_main_session <- function(code, envir = .GlobalEnv) {
+  if (!is.character(code) || length(code) != 1L) {
+    stop("`code` must be a character(1).", call. = FALSE)
+  }
+  if (!is.environment(envir)) {
+    stop("`envir` must be an environment.", call. = FALSE)
+  }
   capture_plots <- uses_plot_functions(code)
   results <- evaluate::evaluate(
     code,
