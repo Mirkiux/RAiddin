@@ -31,7 +31,7 @@ render_content_block <- function(block) {
     ),
     tool_use = shiny::div(
       class = "content-tool-use",
-      shiny::div(class = "tool-header", paste0("\U1F527 ", block$name)),
+      shiny::div(class = "tool-header", paste0("\U0001F527 ", block$name)),
       shiny::pre(class = "tool-input", jsonlite::toJSON(block$input, auto_unbox = TRUE, pretty = TRUE))
     ),
     tool_result = shiny::div(

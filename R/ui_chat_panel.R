@@ -5,7 +5,7 @@
   miniUI::miniPage(
     miniUI::gadgetTitleBar(
       "RAiddin",
-      right = miniUI::miniTitleBarButton("btn_settings", "⚙", primary = FALSE)
+      right = miniUI::miniTitleBarButton("btn_settings", "\u2699", primary = FALSE)
     ),
     shiny::tags$head(
       if (nzchar(css_path)) shiny::includeCSS(css_path)
@@ -43,7 +43,7 @@
         )
       )
     ),
-    miniUI::miniButtonBar(
+    shiny::div(
       shiny::div(
         class = "input-area",
         shiny::textAreaInput("prompt", NULL, placeholder = "Ask Claude...", rows = 3),
@@ -121,7 +121,7 @@
     }
     shiny::updateTextAreaInput(session, "prompt", value = "")
     rv$messages <- c(rv$messages, list(user_message(prompt_text)))
-    rv$status <- "Thinking…"
+    rv$status <- "Thinking..."
     .run_turn(rv, session, input$setting_model, input$setting_threshold_mb)
   })
 
@@ -187,7 +187,7 @@
   }
   idx <- length(rv$pending_results) + 1L
   tc <- rv$pending_calls[[idx]]
-  rv$status <- paste0("Executing: ", tc$name, "…")
+  rv$status <- paste0("Executing: ", tc$name, "...")
 
   if (identical(tc$name, "execute_r_code")) {
     approval <- check_code_approval(tc$input$code)
@@ -212,7 +212,7 @@
       is_error = TRUE
     )
   } else {
-    dr <- dispatch_tool(tc, on_approval_required = function(x) TRUE)
+    dr <- dispatch_tool(tc, on_approval_required = function(code) approved)
   }
 
   block <- list(type = "tool_result", tool_use_id = tc$id, content = dr$content)
@@ -227,7 +227,7 @@
   rv$messages <- c(rv$messages, list(user_message(rv$pending_results)))
   rv$pending_calls <- list()
   rv$pending_results <- list()
-  rv$status <- "Thinking…"
+  rv$status <- "Thinking..."
   .run_turn(rv, session, model, threshold_mb)
 }
 

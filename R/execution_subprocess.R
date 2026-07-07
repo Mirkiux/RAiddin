@@ -128,7 +128,10 @@ execute_subprocess <- function(code, envir = .GlobalEnv,
   if (!is.character(always_push)) {
     stop("`always_push` must be a character vector.", call. = FALSE)
   }
-  if (!is.numeric(timeout_s) || length(timeout_s) != 1L || timeout_s <= 0) {
+  if (!is.numeric(timeout_s) || length(timeout_s) != 1L || is.na(timeout_s)) {
+    stop("`timeout_s` must be a positive numeric(1).", call. = FALSE)
+  }
+  if (timeout_s <= 0) {
     stop("`timeout_s` must be a positive numeric(1).", call. = FALSE)
   }
   session <- .subprocess_state$session
@@ -141,11 +144,26 @@ execute_subprocess <- function(code, envir = .GlobalEnv,
   large <- replicate_env(session, code, envir, threshold_mb, always_push)
 
   raw <- tryCatch(
-    session$run(
-      .subprocess_runner,
-      args    = list(code = code, capture_plots = capture_plots),
-      timeout = timeout_s
-    ),
+    {
+      session$call(
+        .subprocess_runner,
+        args = list(code = code, capture_plots = capture_plots)
+      )
+      timeout_ms <- if (is.finite(timeout_s)) as.integer(timeout_s * 1000) else -1L
+      poll_status <- processx::poll(list(session$get_poll_connection()), timeout_ms)[[1]]
+      if (poll_status == "timeout") {
+        tryCatch(session$kill(), error = function(e2) NULL)
+        .subprocess_state$session <- NULL
+        stop("Code execution timed out after ", timeout_s, "s.", call. = FALSE)
+      }
+      msg <- NULL
+      repeat {
+        msg <- session$read()
+        if (!is.null(msg) && (msg$code == 200L || (msg$code >= 500L && msg$code < 600L))) break
+      }
+      if (!is.null(msg$error)) stop(msg$error$message, call. = FALSE)
+      msg$result
+    },
     error = function(e) {
       tryCatch(session$close(), error = function(e2) NULL)
       .subprocess_state$session <- NULL

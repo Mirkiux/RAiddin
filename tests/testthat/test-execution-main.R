@@ -50,7 +50,7 @@ test_that("execute_main_session() returns correct structure", {
 })
 
 test_that("execute_main_session() evaluates in supplied environment", {
-  env <- new.env(parent = emptyenv())
+  env <- new.env(parent = baseenv())
   env$x <- 99L
   result <- execute_main_session("x", envir = env)
   expect_true(any(grepl("99", result$stdout)))

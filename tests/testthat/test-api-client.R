@@ -88,13 +88,13 @@ test_that("chat_completion() calls the API and returns parsed response", {
   fixture <- jsonlite::read_json(
     testthat::test_path("../fixtures/response_end_turn.json")
   )
-  httr2::local_mocked_responses(
+  httr2::local_mocked_responses(function(req) {
     httr2::response(
       status_code = 200L,
       headers     = list(`content-type` = "application/json"),
       body        = charToRaw(jsonlite::toJSON(fixture, auto_unbox = TRUE))
     )
-  )
+  })
   withr::local_envvar(ANTHROPIC_API_KEY = "test-key")
   resp <- chat_completion(list(user_message("hi")))
   expect_equal(resp$stop_reason, "end_turn")

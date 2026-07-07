@@ -11,7 +11,7 @@
 #'   `warnings`, and `messages`.
 #' @export
 execute_main_session <- function(code, envir = .GlobalEnv) {
-  if (!is.character(code) || length(code) != 1L) {
+  if (!is.character(code) || length(code) != 1L || is.na(code)) {
     stop("`code` must be a character(1).", call. = FALSE)
   }
   if (!is.environment(envir)) {

@@ -19,6 +19,7 @@ Imports:
     miniUI,
     jsonlite,
     callr,
+    processx,
     evaluate,
     codetools,
     base64enc,
