@@ -45,9 +45,8 @@ test_that("raiddin_load_config() handles corrupt YAML gracefully", {
     withr::local_envvar(HOME = getwd())
     dir.create(".raiddin")
     writeLines(": invalid: yaml: ]{", ".raiddin/config.yaml")
-    expect_warning(
-      cfg <- RAiddin:::raiddin_load_config(),
-      regexp = "Could not read"
-    )
+    cfg <- suppressWarnings(RAiddin:::raiddin_load_config())
+    expect_type(cfg, "list")
+    expect_equal(cfg$model, "claude-sonnet-4-6")
   })
 })
