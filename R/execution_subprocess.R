@@ -10,24 +10,23 @@
     messages_out <- character(0)
     stdout_out <- character(0)
     error_out <- NULL
-    png_raw_out <- NULL
 
     parsed <- tryCatch(parse(text = code), error = function(e) e)
     if (inherits(parsed, "error")) {
       return(list(
-        stdout   = character(0),
-        stderr   = character(0),
-        warnings = character(0),
-        messages = character(0),
-        error    = conditionMessage(parsed),
-        png_raw  = NULL
+        stdout       = character(0),
+        stderr       = character(0),
+        warnings     = character(0),
+        messages     = character(0),
+        error        = conditionMessage(parsed),
+        png_raw_list = list()
       ))
     }
 
-    png_tmp <- NULL
+    png_base <- NULL
     if (capture_plots) {
-      png_tmp <- tempfile(fileext = ".png")
-      grDevices::png(png_tmp)
+      png_base <- tempfile()
+      grDevices::png(paste0(png_base, "%03d.png"))
     }
 
     for (expr in as.list(parsed)) {
@@ -53,21 +52,25 @@
       )
     }
 
-    if (capture_plots && !is.null(png_tmp)) {
+    png_raw_list <- list()
+    if (capture_plots && !is.null(png_base)) {
       grDevices::dev.off()
-      if (file.exists(png_tmp) && file.size(png_tmp) > 0L) {
-        png_raw_out <- readBin(png_tmp, "raw", file.size(png_tmp))
+      plot_files <- sort(Sys.glob(paste0(png_base, "*.png")))
+      for (pf in plot_files) {
+        if (file.size(pf) > 0L) {
+          png_raw_list <- c(png_raw_list, list(readBin(pf, "raw", file.size(pf))))
+        }
       }
-      unlink(png_tmp)
+      unlink(plot_files)
     }
 
     list(
-      stdout   = stdout_out,
-      stderr   = character(0),
-      warnings = warnings_out,
-      messages = messages_out,
-      error    = error_out,
-      png_raw  = png_raw_out
+      stdout       = stdout_out,
+      stderr       = character(0),
+      warnings     = warnings_out,
+      messages     = messages_out,
+      error        = error_out,
+      png_raw_list = png_raw_list
     )
   }
   environment(f) <- baseenv()
@@ -136,17 +139,17 @@ execute_subprocess <- function(code, envir = .GlobalEnv,
       tryCatch(session$close(), error = function(e2) NULL)
       .subprocess_state$session <- NULL
       list(
-        stdout   = character(0),
-        stderr   = character(0),
-        warnings = character(0),
-        messages = character(0),
-        error    = paste0("Subprocess error: ", conditionMessage(e)),
-        png_raw  = NULL
+        stdout       = character(0),
+        stderr       = character(0),
+        warnings     = character(0),
+        messages     = character(0),
+        error        = paste0("Subprocess error: ", conditionMessage(e)),
+        png_raw_list = list()
       )
     }
   )
 
-  plots <- if (!is.null(raw$png_raw)) list(raw_png_to_base64(raw$png_raw)) else list()
+  plots <- lapply(raw$png_raw_list, raw_png_to_base64)
 
   result <- build_execution_output(
     stdout   = raw$stdout,
