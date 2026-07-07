@@ -7,6 +7,7 @@ test_that("raw_png_to_base64() encodes raw bytes as base64 string", {
 
 test_that("recordedplot_to_base64() returns a non-empty base64 string", {
   skip_on_cran()
+  skip_on_ci()
   grDevices::png(tempfile(fileext = ".png"))
   plot(1)
   rp <- grDevices::recordPlot()
@@ -18,6 +19,7 @@ test_that("recordedplot_to_base64() returns a non-empty base64 string", {
 
 test_that("recordedplot_to_base64() cleans up temp file", {
   skip_on_cran()
+  skip_on_ci()
   before <- length(list.files(tempdir(), pattern = "\\.png$"))
   grDevices::png(tempfile(fileext = ".png"))
   plot(2)

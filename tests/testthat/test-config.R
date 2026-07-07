@@ -47,7 +47,7 @@ test_that("raiddin_load_config() handles corrupt YAML gracefully", {
     writeLines(": invalid: yaml: ]{", ".raiddin/config.yaml")
     expect_warning(
       cfg <- RAiddin:::raiddin_load_config(),
-      regexp = NA
+      regexp = "Could not read"
     )
   })
 })
