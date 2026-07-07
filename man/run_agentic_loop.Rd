@@ -51,7 +51,7 @@ A named list with:
 \description{
 Calls the Claude API with \code{messages} and \code{tools}, then handles any
 \code{tool_use} turns automatically: each tool call is dispatched via
-\code{\link[=dispatch_tool]{dispatch_tool()}}, the results are appended to the conversation, and
+\code{dispatch_tool()}, the results are appended to the conversation, and
 Claude is called again. The loop stops when Claude returns \code{end_turn},
 when \code{stop_reason} is not \code{"tool_use"}, or when \code{max_turns} is reached.
 }

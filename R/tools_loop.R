@@ -2,7 +2,7 @@
 #'
 #' Calls the Claude API with `messages` and `tools`, then handles any
 #' `tool_use` turns automatically: each tool call is dispatched via
-#' [dispatch_tool()], the results are appended to the conversation, and
+#' `dispatch_tool()`, the results are appended to the conversation, and
 #' Claude is called again. The loop stops when Claude returns `end_turn`,
 #' when `stop_reason` is not `"tool_use"`, or when `max_turns` is reached.
 #'
@@ -46,8 +46,11 @@ run_agentic_loop <- function(
   if (!is.list(messages) || length(messages) == 0L) {
     stop("`messages` must be a non-empty list.", call. = FALSE)
   }
-  if (!is.numeric(max_turns) || length(max_turns) != 1L || max_turns < 1L) {
-    stop("`max_turns` must be a positive numeric(1).", call. = FALSE)
+  if (!is.numeric(max_turns) || length(max_turns) != 1L) {
+    stop("`max_turns` must be a finite, non-NA positive integer.", call. = FALSE)
+  }
+  if (is.na(max_turns) || !is.finite(max_turns) || max_turns < 1L) {
+    stop("`max_turns` must be a finite, non-NA positive integer.", call. = FALSE)
   }
   if (!is.environment(envir)) {
     stop("`envir` must be an environment.", call. = FALSE)
