@@ -1,7 +1,7 @@
 ---
 plan: P15
 title: Testing Suite
-status: not started
+status: completed
 ---
 
 ## Objective

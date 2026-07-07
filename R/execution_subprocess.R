@@ -105,13 +105,17 @@ reset_subprocess <- function() {
 #'   auto-pushed (default `50`).
 #' @param always_push Character vector of object names to always push,
 #'   regardless of `threshold_mb`.
+#' @param timeout_s Numeric; seconds to allow the subprocess to run before
+#'   forcibly terminating it (default `Inf`, no limit). Use a finite value to
+#'   prevent runaway code from hanging the session indefinitely.
 #'
 #' @return A named list with elements `stdout`, `stderr`, `plots`, `error`,
 #'   `warnings`, `messages`, and `large` (names of skipped large objects).
 #' @export
 execute_subprocess <- function(code, envir = .GlobalEnv,
                                threshold_mb = 50,
-                               always_push = character(0)) {
+                               always_push = character(0),
+                               timeout_s = Inf) {
   if (!is.character(code) || length(code) != 1L) {
     stop("`code` must be a character(1).", call. = FALSE)
   }
@@ -124,6 +128,9 @@ execute_subprocess <- function(code, envir = .GlobalEnv,
   if (!is.character(always_push)) {
     stop("`always_push` must be a character vector.", call. = FALSE)
   }
+  if (!is.numeric(timeout_s) || length(timeout_s) != 1L || timeout_s <= 0) {
+    stop("`timeout_s` must be a positive numeric(1).", call. = FALSE)
+  }
   session <- .subprocess_state$session
   if (is.null(session) || !session$is_alive()) {
     session <- callr::r_session$new()
@@ -134,7 +141,11 @@ execute_subprocess <- function(code, envir = .GlobalEnv,
   large <- replicate_env(session, code, envir, threshold_mb, always_push)
 
   raw <- tryCatch(
-    session$run(.subprocess_runner, args = list(code = code, capture_plots = capture_plots)),
+    session$run(
+      .subprocess_runner,
+      args    = list(code = code, capture_plots = capture_plots),
+      timeout = timeout_s
+    ),
     error = function(e) {
       tryCatch(session$close(), error = function(e2) NULL)
       .subprocess_state$session <- NULL

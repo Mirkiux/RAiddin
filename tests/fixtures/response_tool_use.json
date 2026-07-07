@@ -1,0 +1,18 @@
+{
+  "id": "msg_02ABCDEFGHabcdefgh123456",
+  "type": "message",
+  "role": "assistant",
+  "content": [
+    {"type": "text", "text": "I'll execute that code for you."},
+    {
+      "type": "tool_use",
+      "id": "toolu_01A2B3C4D5E6F7G8H9",
+      "name": "execute_r_code",
+      "input": {"code": "1 + 1", "session": "main"}
+    }
+  ],
+  "model": "claude-sonnet-4-6",
+  "stop_reason": "tool_use",
+  "stop_sequence": null,
+  "usage": {"input_tokens": 20, "output_tokens": 15}
+}

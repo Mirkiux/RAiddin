@@ -1,0 +1,150 @@
+/* ── Chat layout ───────────────────────────────────────────────────────── */
+
+#chat-history-container {
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding: 0 8px;
+}
+
+.chat-history {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+/* ── Message turns ─────────────────────────────────────────────────────── */
+
+.turn {
+  max-width: 90%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  word-wrap: break-word;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.turn-user {
+  align-self: flex-end;
+  background: #0d6efd;
+  color: #fff;
+}
+
+.turn-assistant {
+  align-self: flex-start;
+  background: #f0f0f0;
+  color: #212529;
+  border: 1px solid #dee2e6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .turn-assistant {
+    background: #2a2a2a;
+    color: #e8e8e8;
+    border-color: #444;
+  }
+}
+
+/* ── Code blocks ───────────────────────────────────────────────────────── */
+
+.code-block,
+.tool-input,
+.approval-code {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+code {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+
+/* ── Tool call blocks ──────────────────────────────────────────────────── */
+
+.content-tool-use,
+.content-tool-result {
+  border-left: 3px solid #6c757d;
+  padding: 6px 10px;
+  margin: 4px 0;
+  font-size: 0.85rem;
+}
+
+.content-tool-result.error {
+  border-left-color: #dc3545;
+}
+
+.tool-header {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #495057;
+}
+
+/* ── Inline plots ──────────────────────────────────────────────────────── */
+
+.content-image {
+  margin: 6px 0;
+}
+
+.inline-plot {
+  max-width: 100%;
+  border-radius: 4px;
+  cursor: zoom-in;
+}
+
+/* ── Input area ────────────────────────────────────────────────────────── */
+
+.input-area {
+  padding: 8px;
+  width: 100%;
+}
+
+.input-area textarea {
+  width: 100%;
+  resize: vertical;
+  font-size: 0.9rem;
+}
+
+.input-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  justify-content: flex-end;
+}
+
+/* ── Status bar ────────────────────────────────────────────────────────── */
+
+.status-bar {
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
+/* ── Settings panel ────────────────────────────────────────────────────── */
+
+.settings-panel {
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .settings-panel {
+    background: #1e1e1e;
+    border-color: #444;
+  }
+}
+
+/* ── Approval modal ────────────────────────────────────────────────────── */
+
+.approval-modal-body p {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
