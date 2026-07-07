@@ -1,7 +1,7 @@
 ---
 plan: P10
 title: Plot Capture Pipeline
-status: not started
+status: completed
 ---
 
 ## Objective
