@@ -42,11 +42,14 @@ test_that("raiddin_get_option() returns NULL for unknown key", {
 
 test_that("raiddin_load_config() handles corrupt YAML gracefully", {
   withr::with_tempdir({
-    withr::local_envvar(HOME = getwd(), USERPROFILE = getwd())
-    dir.create(".raiddin")
-    writeLines("{]", ".raiddin/config.yaml")
+    cfg_path <- file.path(getwd(), "corrupt_config.yaml")
+    writeLines("{]", cfg_path)
+    local_mocked_bindings(
+      raiddin_config_path = function() cfg_path,
+      .package = "RAiddin"
+    )
     expect_warning(
-      cfg <- RAiddin:::raiddin_load_config(),
+      RAiddin:::raiddin_load_config(),
       regexp = "Could not read"
     )
   })
