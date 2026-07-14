@@ -19,6 +19,7 @@ Imports:
     miniUI,
     jsonlite,
     callr,
+    processx,
     evaluate,
     codetools,
     base64enc,
@@ -26,10 +27,14 @@ Imports:
     yaml
 Suggests:
     testthat (>= 3.0.0),
+    withr,
     covr,
     pkgdown,
+    knitr,
+    rmarkdown,
     lintr,
     styler
+VignetteBuilder: knitr
 Config/Needs/check: rcmdcheck
 Config/Needs/coverage: covr, xml2
 Config/Needs/website: pkgdown

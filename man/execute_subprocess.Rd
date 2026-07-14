@@ -8,7 +8,8 @@ execute_subprocess(
   code,
   envir = .GlobalEnv,
   threshold_mb = 50,
-  always_push = character(0)
+  always_push = character(0),
+  timeout_s = Inf
 )
 }
 \arguments{
@@ -21,6 +22,10 @@ auto-pushed (default \code{50}).}
 
 \item{always_push}{Character vector of object names to always push,
 regardless of \code{threshold_mb}.}
+
+\item{timeout_s}{Numeric; seconds to allow the subprocess to run before
+forcibly terminating it (default \code{Inf}, no limit). Use a finite value to
+prevent runaway code from hanging the session indefinitely.}
 }
 \value{
 A named list with elements \code{stdout}, \code{stderr}, \code{plots}, \code{error},

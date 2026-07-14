@@ -1,0 +1,155 @@
+---
+title: "Security Model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Security Model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Overview
+
+RAiddin enables Claude to execute arbitrary R code inside an RStudio session.
+This document describes the security model, known risks, and mitigations so
+that users can make an informed decision before deploying the package.
+
+---
+
+## API Key Handling
+
+**How the key is read.**
+`get_api_key()` reads `ANTHROPIC_API_KEY` from the process environment. The
+key is injected into each HTTP request as an `x-api-key` header by
+`claude_base_request()` and is never stored in memory beyond the lifetime of
+the request object.
+
+**What the package does NOT do.**
+
+- The key is never written to disk by the package itself.
+- The key is never included in error messages (API error bodies are parsed from
+  the response JSON; the request headers are discarded before the body is
+  read).
+- The key is never logged or emitted via `message()`.
+
+**Callr subprocess inheritance.**
+A callr subprocess inherits the full environment of the parent R process,
+including `ANTHROPIC_API_KEY`. The subprocess does not load the RAiddin
+package, so it cannot call the Claude API. The variable is present in the
+subprocess environment but is practically inaccessible without network code.
+
+**Recommendation.**
+Store your key in `~/.Renviron` and avoid committing it to source control.
+Use `Sys.unsetenv("ANTHROPIC_API_KEY")` in scripts where you want to prevent
+network access.
+
+---
+
+## Arbitrary Code Execution
+
+RAiddin lets Claude propose and execute R code. This is intentional and
+powerful — it is the core feature. The following design choices bound the
+risk.
+
+### Approval system
+
+Every code block Claude proposes is passed through `check_code_approval()`
+before execution:
+
+1. **Session auto-approve** (`set_auto_approve(TRUE)`): skips all prompts for
+   the duration of the R session. This is the only way to bypass the approval
+   check; it requires an explicit user action.
+2. **Pattern-based approval** (`add_approved_pattern()`): pre-approves code
+   that matches a fixed substring. Uses `grepl(..., fixed = TRUE)` — special
+   characters in the pattern have no effect, so regex injection is not
+   possible.
+3. **Interactive prompt** (default): the UI shows the code and requires user
+   confirmation before execution.
+
+There is no path to execute code without either an explicit opt-in or user
+confirmation.
+
+### Main-session execution (`execute_main_session`)
+
+Code runs in the caller's `.GlobalEnv` via `evaluate::evaluate()`. It shares
+the same address space, file handles, and R state as the interactive session.
+This is appropriate for normal data-analysis workflows but means a malicious
+or buggy code block can modify global state, write files, or make network
+calls with the same privileges as the user running R.
+
+### Subprocess execution (`execute_subprocess`)
+
+Code runs in a separate R process via `callr::r_session`. Key properties:
+
+- **Process isolation**: crashes in the subprocess do not crash the parent
+  session.
+- **No automatic privilege escalation**: the subprocess runs as the same OS
+  user and inherits the same file-system permissions.
+- **Timeout**: the `timeout_s` parameter (default `Inf`) limits how long the
+  subprocess can run. Set a finite value to guard against infinite loops:
+
+  ```r
+  execute_subprocess("while(TRUE) {}", timeout_s = 30)
+  ```
+
+- **Memory**: there is no hard memory cap on the subprocess. Long-running
+  analyses can consume available RAM. Monitor usage with system tools if
+  running untrusted code.
+- **Object push threshold**: `threshold_mb` (default 50 MB) prevents very
+  large objects from being serialised and sent to the subprocess, protecting
+  against accidental memory exhaustion during the push step.
+
+---
+
+## Network
+
+The package makes HTTP calls only to `https://api.anthropic.com/v1` (the
+Anthropic Messages API). No telemetry, analytics, or crash-reporting data is
+collected or transmitted. TLS validation is handled by `httr2` which uses the
+system certificate store — the default is secure and is not overridden.
+
+To verify at runtime:
+
+```r
+# Intercept all outbound HTTP calls in a test environment
+httr2::local_mocked_responses(httr2::response(status_code = 200))
+```
+
+---
+
+## Dependency Audit
+
+Core dependencies and their security relevance:
+
+| Package     | Role                            | Notes |
+|-------------|---------------------------------|-------|
+| `httr2`     | HTTP client for Claude API      | Enforces TLS; no known CVEs |
+| `callr`     | Subprocess execution            | Standard CRAN package; process isolation only |
+| `evaluate`  | Expression evaluation + capture | Trusted CRAN package |
+| `codetools` | Static analysis                 | Read-only; no side effects |
+| `base64enc` | PNG encoding                    | No network access |
+| `lobstr`    | Object size measurement         | Read-only; no side effects |
+| `yaml`      | Config file parsing             | Trusted CRAN package |
+| `rstudioapi`| Editor integration              | Read/write to editor only |
+| `shiny`     | Chat panel UI                   | Local web server on loopback only |
+| `miniUI`    | Gadget layout                   | UI only |
+
+Run `pak::pkg_deps_tree("RAiddin")` to inspect the full transitive dependency
+tree and cross-reference against the [OSV vulnerability database](https://osv.dev).
+
+---
+
+## Risk Summary
+
+| Area | Risk Level | Mitigation |
+|------|-----------|------------|
+| API key exposure | Low | Env-var only; never logged or persisted by package |
+| Main-session code execution | Medium | Approval gate; user must opt in to auto-approve |
+| Subprocess code execution | Medium | Approval gate; process isolation; configurable timeout |
+| Subprocess memory exhaustion | Low–Medium | Object-push threshold; no hard cap on subprocess RAM |
+| Network calls | Low | Only `api.anthropic.com`; TLS enforced |
+| Regex injection in patterns | None | Fixed-string matching only (`fixed = TRUE`) |
+| Subprocess API key access | Negligible | Subprocess does not load network code; key is inert |

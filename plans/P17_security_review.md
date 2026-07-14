@@ -1,7 +1,7 @@
 ---
 plan: P17
 title: Security Review
-status: not started
+status: completed
 ---
 
 ## Objective
